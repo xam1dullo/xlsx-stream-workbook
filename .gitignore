@@ -1,0 +1,6 @@
+node_modules/
+.xlsx-temp/
+test/output/
+test/temp/
+*.log
+.DS_Store
