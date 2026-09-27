@@ -4,6 +4,17 @@
   "description": "Streaming Excel workbook writer with multiple worksheets support. Memory-efficient for large datasets.",
   "main": "index.js",
   "types": "index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "lib/",
+    "brand/logo.svg",
+    "brand/logo-dark.svg",
+    "docs/diagrams/architecture.svg",
+    "docs/diagrams/architecture-full.svg",
+    "docs/diagrams/lifecycle.svg"
+  ],
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "npm run typecheck && node test/test.js"
@@ -11,7 +22,9 @@
   "keywords": [
     "xlsx",
     "excel",
+    "spreadsheet",
     "streaming",
+    "stream",
     "workbook",
     "worksheet",
     "multiple-sheets",
@@ -22,6 +35,10 @@
   ],
   "author": "Khamidullo Khudoyberdiev",
   "license": "MIT",
+  "homepage": "https://github.com/xam1dullo/xlsx-stream-workbook#readme",
+  "bugs": {
+    "url": "https://github.com/xam1dullo/xlsx-stream-workbook/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/xam1dullo/xlsx-stream-workbook.git"
