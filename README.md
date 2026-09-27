@@ -1,5 +1,16 @@
 # xlsx-stream-workbook
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="brand/logo-dark.svg">
+  <img src="brand/logo.svg" alt="xlsx-stream-workbook" width="360">
+</picture>
+
+[![npm version](https://img.shields.io/npm/v/xlsx-stream-workbook?label=npm)](https://www.npmjs.com/package/xlsx-stream-workbook)
+[![CI](https://github.com/xam1dullo/xlsx-stream-workbook/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/xam1dullo/xlsx-stream-workbook/actions/workflows/ci.yml)
+[![types](https://img.shields.io/badge/types-TypeScript-3178C6)](index.d.ts)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![node](https://img.shields.io/badge/node-%3E%3D18-5FA04E)](package.json)
+
 📊 **Streaming Excel workbook writer with multiple worksheets support**
 
 Memory-efficient solution for creating Excel files with multiple sheets, handling 100K+ rows without memory issues.
@@ -401,10 +412,18 @@ app.get('/download/report', async (req, res) => {
 - [xlsx-write-stream](https://www.npmjs.com/package/xlsx-write-stream) - Streaming XLSX writer
 - [jszip](https://www.npmjs.com/package/jszip) - ZIP file manipulation
 
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request. `npm test` runs the typecheck and the full suite, so a change is not done until both are green.
+
+## Brand
+
+The identity is built from one idea: rows pass through, nothing accumulates. The mark is a page frame with a bar that replaces its middle edge and extends past both sides, which is the library's two phases in one shape.
+
+<img src="brand/board.svg" alt="The xlsx-stream-workbook identity system: mark, construction, application, promise, colour, type, print, direction and system." width="100%">
+
+<sub>Full-size: [**board.svg**](brand/board.svg) · [**brand.md**](brand/brand.md) for the rationale, colour and type rules, and usage constraints. Logo and mark come in light and dark variants; regenerate the PNGs with `python3 brand/rasterize.py`.</sub>
+
 ## License
 
 MIT © Khamidullo Khudoyberdiev
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request.

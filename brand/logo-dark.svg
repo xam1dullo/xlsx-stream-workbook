@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 96" width="480" height="96" role="img" aria-labelledby="logo-dark-title logo-dark-desc">
+  <title id="logo-dark-title">xlsx-stream-workbook, reversed</title>
+  <desc id="logo-dark-desc">A square page outline with a solid bar passing through it, beside the words xlsx-stream-workbook and the tagline, drawn in paper on a near-black field.</desc>
+  <rect width="480" height="96" fill="#111318"/>
+  <g fill="none" stroke="#f7f6f3" stroke-width="2.5">
+    <path d="M 10 10 H 54"/>
+    <path d="M 10 54 H 54"/>
+    <path d="M 10 10 V 28 M 10 36 V 54"/>
+    <path d="M 54 10 V 28 M 54 36 V 54"/>
+  </g>
+  <rect x="2" y="28" width="60" height="8" fill="#e0662a"/>
+
+  <text x="88" y="46" fill="#f7f6f3" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="27" font-weight="600" letter-spacing="-0.02em">xlsx-stream-workbook</text>
+  <text x="88" y="70" fill="#e0662a" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12">rows pass through, nothing accumulates</text>
+</svg>

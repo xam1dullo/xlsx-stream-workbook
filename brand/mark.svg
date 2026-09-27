@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-labelledby="mark-title mark-desc">
+  <title id="mark-title">xlsx-stream-workbook mark</title>
+  <desc id="mark-desc">A square page outline with a solid bar entering from the left, crossing the page and exiting on the right, replacing the page edge where it passes.</desc>
+  <g fill="none" stroke="#111318" stroke-width="2.5">
+    <path d="M 10 10 H 54"/>
+    <path d="M 10 54 H 54"/>
+    <path d="M 10 10 V 28 M 10 36 V 54"/>
+    <path d="M 54 10 V 28 M 54 36 V 54"/>
+  </g>
+  <rect x="2" y="28" width="60" height="8" fill="#c2410c"/>
+</svg>
