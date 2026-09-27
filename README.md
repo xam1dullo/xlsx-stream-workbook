@@ -4,14 +4,18 @@
 
 Memory-efficient solution for creating Excel files with multiple sheets, handling 100K+ rows without memory issues.
 
+Rows are written through a backpressured stream and any iterable you pass is consumed lazily, so writing does not grow memory with row count. Merging the finished sheets into one archive is bounded by the archive itself — see [Performance Tips](#performance-tips) for the remaining caveat.
+
 ## Features
 
 - ✅ **Streaming writes** - Memory efficient for large datasets
+- ✅ **Safe parallel writes** - Sheets can be added concurrently
 - ✅ **Multiple worksheets** - Create workbooks with many sheets
 - ✅ **Sectioned sheets** - Vertical multi-section layouts
 - ✅ **Iterator support** - Use generators for massive datasets
 - ✅ **Progress callbacks** - Track write progress
 - ✅ **Buffer output** - Save to file or get buffer directly
+- ✅ **Loud on bad input** - Values that would corrupt the file are rejected, not dropped
 - ✅ **TypeScript support** - Full type definitions included
 
 ## Installation
@@ -65,9 +69,11 @@ Create a new workbook instance.
 **Options:**
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `tempDir` | string | `.xlsx-temp` | Temporary directory for intermediate files |
-| `cleanupOnSave` | boolean | `true` | Delete temp files after save |
-| `compressionLevel` | number | `6` | ZIP compression level (0-9) |
+| `tempDir` | string | a directory under the OS temp dir | Temporary directory for intermediate files. A directory you supply here is never removed by this library. |
+| `cleanupOnSave` | boolean | `true` | Delete temp files after save. See [Repeat saves](#repeat-saves). |
+| `compressionLevel` | number | `6` | ZIP compression level, 0-9. Level 0 stores without compression. Any other value throws a `RangeError`. |
+
+`save()` creates missing parent directories, so you do not have to `mkdir` first.
 
 ### `workbook.addSheet(name, headers, rows, options?)`
 
@@ -86,11 +92,22 @@ await workbook.addSheet('Sheet1',
 **With progress callback:**
 ```javascript
 await workbook.addSheet('BigData', headers, rows, {
-    onProgress: (current, total) => {
-        console.log(`Progress: ${current}/${total}`);
+    onProgress: (completed, total) => {
+        console.log(`Progress: ${completed}/${total}`);
     }
 });
 ```
+
+The callback contract is the same for all three add methods: it receives rows completed, plus the total whenever the row count is knowable up front. Streaming from an iterator or a lazy iterable means the total is unknown, so it arrives as `undefined` and the callback reports a running count. The callback fires at least once on a non-empty sheet. Control the cadence with `progressInterval` (default 1000 rows):
+
+```javascript
+await workbook.addSheet('BigData', headers, rows, {
+    progressInterval: 10_000,
+    onProgress: (completed, total) => { /* ... */ }
+});
+```
+
+The callback must be synchronous — a returned promise is not awaited — and if it throws, the write fails rather than being silently swallowed.
 
 ### `workbook.addSheetWithSections(name, sections, options?)`
 
@@ -176,18 +193,52 @@ const buffer = await workbook.saveAsBuffer();
 
 ### `workbook.getSheets()`
 
-Get information about added sheets.
+Get information about added sheets. `rowCount` is the number of **data** rows, so counts are comparable across `addSheet`, `addSheetWithSections` and `addSheetFromIterator`.
 
 ```javascript
 const sheets = workbook.getSheets();
 // [{ name: 'Sheet1', rowCount: 100 }, { name: 'Sheet2', rowCount: 50 }]
 ```
 
-### `workbook.cleanup()`
+### `workbook.getTempFiles()`
 
-Manually clean up temporary files.
+Paths of the intermediate files this workbook created. Useful when `cleanupOnSave: false` — you own their lifetime once you have them.
 
 ```javascript
+const files = workbook.getTempFiles(); // ['/tmp/xlsx-stream-workbook-1234/sheet_1_0.xlsx']
+```
+
+### `workbook.cleanup()`
+
+Manually release the intermediate files. The workbook cannot be saved or extended afterwards.
+
+```javascript
+await workbook.cleanup();
+```
+
+### Cell values
+
+A cell value that cannot be represented in the file is rejected at the call site, naming the sheet, row and column — rather than written out as a file Excel refuses to open:
+
+- `NaN` and `Infinity` are rejected.
+- Types other than `string`, finite `number`, `boolean`, `Date`, `null` and `undefined` are rejected. A row that is not an array is rejected too, rather than silently dropped.
+- `null` and `undefined` leave the cell empty, which is what you want for sparse rows.
+- Cell text is written as an explicitly-typed string, so a leading `=` is text and not a formula.
+
+### Sheet names
+
+Names are normalised against Excel's rules (31 characters, no `\ / ? * [ ] :`, no control characters, no leading or trailing apostrophe) and then made unique across the workbook, comparing case-insensitively as Excel does. If your name was altered, `addSheet` returns `nameChanged: true` along with the `name` actually used.
+
+### Repeat saves
+
+The intermediate files are the only copy of your data. With the default `cleanupOnSave: true`, saving releases them, after which the workbook cannot be saved or extended again. To save more than once — or to add a sheet between saves — pass `cleanupOnSave: false` and call `cleanup()` when you are done:
+
+```javascript
+const workbook = new StreamingWorkbook({ cleanupOnSave: false });
+await workbook.addSheet('Q1', headers, q1Rows);
+await workbook.save('q1.xlsx');
+await workbook.addSheet('Q2', headers, q2Rows);
+await workbook.save('q1-q2.xlsx');
 await workbook.cleanup();
 ```
 
@@ -275,13 +326,16 @@ app.get('/download/report', async (req, res) => {
 
 ## Performance Tips
 
-1. **Use generators for massive datasets** - Avoids loading all data into memory
-2. **Adjust compression level** - Lower levels (1-3) are faster, higher (7-9) produce smaller files
-3. **Process in batches** - For database queries, fetch and write in chunks
+1. **Pass an iterable, not an array** - `addSheet` accepts any iterable and consumes it lazily, so a generator never has to exist in full. Same for `addSheetFromIterator` with an async generator.
+2. **Adjust compression level** - Lower levels (1-3) are faster, higher (7-9) produce smaller files, and 0 disables compression entirely.
+3. **Process in batches** - For database queries, fetch and write in chunks.
+4. **Adding sheets in parallel is safe** - `Promise.all` over `addSheet` calls produces a valid workbook; temp file identity does not depend on timing.
+
+**Known limitation.** Writing is streamed and backpressured, but the merge step is not. `jszip` assembles the whole archive in memory, so peak memory during `save()` is roughly the size of the finished workbook. If you need true end-to-end streaming for a very large workbook, `exceljs`'s streaming writer is the better tool.
 
 ## Requirements
 
-- Node.js >= 14.0.0
+- Node.js >= 18.0.0 (the test suite uses the built-in `node:test` runner)
 
 ## Dependencies
 
