@@ -1,11 +1,12 @@
 {
   "name": "xlsx-stream-workbook",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Streaming Excel workbook writer with multiple worksheets support. Memory-efficient for large datasets.",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "test": "node test/test.js"
+    "typecheck": "tsc --noEmit",
+    "test": "npm run typecheck && node test/test.js"
   },
   "keywords": [
     "xlsx",
@@ -15,7 +16,9 @@
     "worksheet",
     "multiple-sheets",
     "large-files",
-    "memory-efficient"
+    "memory-efficient",
+    "typescript",
+    "types"
   ],
   "author": "Khamidullo Khudoyberdiev",
   "license": "MIT",
@@ -24,10 +27,13 @@
     "url": "https://github.com/xam1dullo/xlsx-stream-workbook.git"
   },
   "dependencies": {
-    "xlsx-write-stream": "^1.0.3",
-    "jszip": "^3.10.1"
+    "jszip": "^3.10.1",
+    "xlsx-write-stream": "^1.0.3"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "typescript": "~7.0.0"
   }
 }

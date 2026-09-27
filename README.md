@@ -16,7 +16,7 @@ Rows are written through a backpressured stream and any iterable you pass is con
 - ✅ **Progress callbacks** - Track write progress
 - ✅ **Buffer output** - Save to file or get buffer directly
 - ✅ **Loud on bad input** - Values that would corrupt the file are rejected, not dropped
-- ✅ **TypeScript support** - Full type definitions included
+- ✅ **TypeScript support** - Hand-written types, verified on every test run
 
 ## Installation
 
@@ -184,12 +184,25 @@ const result = await workbook.save('output.xlsx');
 
 ### `workbook.saveAsBuffer()`
 
-Save workbook and return as Buffer.
+Save workbook and return it as a `Uint8Array`. At runtime the value is a Node `Buffer`, so `Buffer` consumers are unaffected, but the declared type resolves without `@types/node`.
 
 ```javascript
 const buffer = await workbook.saveAsBuffer();
 // Use buffer for HTTP response, email attachment, etc.
 ```
+
+## TypeScript
+
+Types ship in `index.d.ts` and are hand-written rather than generated, so they can say why a contract is what it is. They are checked on every `npm test` against a sample consumer (`types/consumer.ts`) that exercises every public method, so a declaration that narrows what the implementation accepts fails the build instead of reaching you.
+
+```typescript
+import { StreamingWorkbook } from 'xlsx-stream-workbook';
+// or: import StreamingWorkbook from 'xlsx-stream-workbook';
+```
+
+Both import styles resolve to the class. Named and default imports are the same value, as are `const { StreamingWorkbook } = require(...)` and `const StreamingWorkbook = require(...)`.
+
+The check runs under TypeScript 7.0, a devDependency, with `strict` on. Nothing in the public types references Node's ambient globals, so you do not need `@types/node` to use this package.
 
 ### `workbook.getSheets()`
 

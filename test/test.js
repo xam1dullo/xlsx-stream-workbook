@@ -10,8 +10,8 @@
 
 const { test, describe } = require('node:test');
 const assert = require('node:assert');
+const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
-const fsp = require('node:fs/promises');
 const os = require('node:os');
 const path = require('node:path');
 
@@ -737,5 +737,76 @@ describe('output shapes', () => {
         const wb = newWorkbook();
         await assert.rejects(() => wb.save(path.join(scratch(), 'x.xlsx')), /No sheets/);
         await assert.rejects(() => wb.saveAsBuffer(), /No sheets/);
+    });
+});
+
+// ---------------------------------------------------------------------------
+// Published types
+// ---------------------------------------------------------------------------
+
+const repoRoot = path.join(__dirname, '..');
+const consumerOut = path.join(repoRoot, 'types-out');
+
+/**
+ * Emits the sample consumer next to the repository root so its relative import of
+ * `../index` still points at the real entry point, the same place a published
+ * consumer's would. A type-only check cannot catch an interop shape that only
+ * fails at runtime, which is why this compiles and executes rather than just
+ * typechecking.
+ */
+function emitConsumer() {
+    fs.rmSync(consumerOut, { recursive: true, force: true });
+    // Resolved through package.json because typescript's exports map does not
+    // expose bin/tsc as a subpath.
+    const tsc = path.join(path.dirname(require.resolve('typescript/package.json')), 'bin', 'tsc');
+    execFileSync(
+        process.execPath,
+        [
+            tsc,
+            '-p', path.join(repoRoot, 'tsconfig.json'),
+            '--noEmit', 'false',
+            '--outDir', consumerOut,
+            '--rootDir', path.join(repoRoot, 'types')
+        ],
+        { cwd: repoRoot, stdio: 'pipe' }
+    );
+    return require(path.join(consumerOut, 'consumer.js'));
+}
+
+describe('published types', () => {
+    test('a default import resolves to the class, not the module object', () => {
+        const consumer = emitConsumer();
+        assert.strictEqual(typeof consumer.StreamingWorkbookDefault, 'function');
+        assert.strictEqual(consumer.StreamingWorkbookDefault, consumer.StreamingWorkbook);
+        assert.strictEqual(consumer.StreamingWorkbook, require('../index'));
+    });
+
+    test('every import style resolves to the same class', () => {
+        const entry = require('../index');
+        assert.strictEqual(typeof entry, 'function', 'module value should be the class');
+        assert.strictEqual(entry.StreamingWorkbook, entry);
+        assert.strictEqual(entry.default, entry);
+        assert.strictEqual(entry.name, 'StreamingWorkbook');
+    });
+
+    test('the consumer runs end to end through the typed API', async () => {
+        const consumer = emitConsumer();
+        const result = await consumer.run();
+
+        assert.deepStrictEqual(
+            result.sheets.map((s) => `${s.name}=${s.rowCount}`),
+            ['Plain=2', 'Lazy=3', 'Streamed=2', 'Report=2'],
+            'rowCount is data rows only, for every add method'
+        );
+        assert.ok(result.bytes instanceof Uint8Array, 'saveAsBuffer must resolve without @types/node');
+        assert.ok(result.size > 0);
+        assert.strictEqual(result.files.length, 4, 'getTempFiles must reach every intermediate file');
+        assert.strictEqual(result.altered, false, 'no consumer sheet name needed changing');
+    });
+
+    test('emitted output is removed on exit', () => {
+        emitConsumer();
+        assert.ok(fs.existsSync(path.join(consumerOut, 'consumer.js')));
+        roots.push(consumerOut);
     });
 });

@@ -123,8 +123,12 @@ export class StreamingWorkbook {
 
     /**
      * Save workbook to buffer. See save() for the repeat-save constraint.
+     *
+     * Returns a Uint8Array rather than a Node Buffer so that this declaration
+     * resolves without `@types/node`. At runtime the value is a Buffer, which is
+     * a Uint8Array, so existing Buffer consumers are unaffected.
      */
-    saveAsBuffer(): Promise<Buffer>;
+    saveAsBuffer(): Promise<Uint8Array>;
 
     /**
      * Get sheet info
