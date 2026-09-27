@@ -8,3 +8,6 @@ test/temp/
 # Local agent tooling, not shared with the team
 .agents/
 skills-lock.json
+
+# Emitted by the typecheck test
+types-out/

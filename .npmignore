@@ -1,4 +1,11 @@
 test/
+types/
+types-out/
+tsconfig.json
 .gitignore
 .xlsx-temp/
 *.log
+.agents/
+skills-lock.json
+AGENTS.md
+docs/
