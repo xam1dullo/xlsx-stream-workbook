@@ -4,3 +4,7 @@ test/output/
 test/temp/
 *.log
 .DS_Store
+
+# Local agent tooling, not shared with the team
+.agents/
+skills-lock.json
