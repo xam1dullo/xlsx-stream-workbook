@@ -38,9 +38,9 @@ That split has three consequences worth knowing up front:
 - **Adding sheets is cheap and parallel-safe.** Each sheet is independent, so `Promise.all` over several `addSheet` calls is fine — temp file identity does not depend on timing.
 - **The merge is where memory goes.** Writing is streamed and backpressured, but `jszip` assembles the finished archive in memory. See [Performance Tips](#performance-tips).
 
-[**See the two-phase write and merge pipeline →**](docs/diagrams/architecture.html)
-&nbsp;&nbsp;·&nbsp;&nbsp;
-[**Full walkthrough, annotated →**](docs/diagrams/architecture-full.html)
+<img src="docs/diagrams/architecture.svg" alt="Rows are streamed into one temporary Excel file per sheet as each sheet is added, and those temporary files are then merged into a single workbook when the workbook is saved." width="100%">
+
+<sub>Open it full-size: [**architecture.svg**](docs/diagrams/architecture.svg) · [**architecture.html**](docs/diagrams/architecture.html) — or read the [**annotated walkthrough**](docs/diagrams/architecture-full.html) for the real part inventory, the relationship chain, and a table separating what the spec requires from what is merely verified.</sub>
 
 ## Quick Start
 
@@ -275,7 +275,9 @@ await workbook.save('q1-q2.xlsx');
 await workbook.cleanup();
 ```
 
-The full state machine, including why `sealed` throws rather than returning, is drawn in [**the workbook lifecycle →**](docs/diagrams/lifecycle.html).
+<img src="docs/diagrams/lifecycle.svg" alt="A workbook starts empty, becomes open once a sheet has been written to an intermediate file, moves to saving when save is called, becomes merged when the output is written, and either returns to open or becomes sealed. Sealed is terminal: further calls throw." width="100%">
+
+<sub>Open it full-size: [**lifecycle.svg**](docs/diagrams/lifecycle.svg) · [**lifecycle.html**](docs/diagrams/lifecycle.html)</sub>
 
 ### Package integrity
 

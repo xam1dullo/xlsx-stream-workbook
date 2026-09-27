@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1000 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="architecture-title architecture-desc">
+      <title id="architecture-title">Two-phase workbook write</title>
+      <desc id="architecture-desc">Rows are streamed into one temporary Excel file per sheet as each sheet is added, and those temporary files are then merged into a single workbook when the workbook is saved.</desc>
+      <defs>
+        <style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- Arrows first, so z-order puts connections behind components. -->
+      <line x1="180" y1="120" x2="212" y2="120" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="332" y1="120" x2="364" y2="120" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="484" y1="120" x2="516" y2="120" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="636" y1="120" x2="668" y2="120" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+      <line x1="788" y1="120" x2="820" y2="120" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- 1. Your rows — input -->
+      <rect x="60" y="80" width="120" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="60" y="80" width="120" height="80" rx="6" fill="#4f5d75" fill-opacity="0.10" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="1"/>
+      <rect x="68" y="86" width="28" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.40" stroke-width="0.8"/>
+      <text x="82" y="95" fill="#4f5d75" fill-opacity="0.80" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DATA</text>
+      <text x="120" y="112" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Your rows</text>
+      <text x="120" y="128" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">array | Iterable</text>
+
+      <!-- 2. Workbook — focal -->
+      <rect x="212" y="80" width="120" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="212" y="80" width="120" height="80" rx="6" fill="#eb6c36" fill-opacity="0.08" stroke="#eb6c36" stroke-width="1"/>
+      <rect x="220" y="86" width="28" height="12" rx="2" fill="none" stroke="#eb6c36" stroke-opacity="0.40" stroke-width="0.8"/>
+      <text x="234" y="95" fill="#eb6c36" fill-opacity="0.80" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">API</text>
+      <text x="272" y="112" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Workbook</text>
+      <text x="272" y="128" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">StreamingWorkbook</text>
+
+      <!-- 3. Sheet writer -->
+      <rect x="364" y="80" width="120" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="364" y="80" width="120" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="372" y="86" width="28" height="12" rx="2" fill="none" stroke="#2d3142" stroke-opacity="0.40" stroke-width="0.8"/>
+      <text x="386" y="95" fill="#2d3142" fill-opacity="0.80" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">WRITE</text>
+      <text x="424" y="112" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Sheet writer</text>
+      <text x="424" y="128" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">sheet-writer.js</text>
+
+      <!-- 4. Temp files — store -->
+      <rect x="516" y="80" width="120" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="516" y="80" width="120" height="80" rx="6" fill="#2d3142" fill-opacity="0.05" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="524" y="86" width="28" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.40" stroke-width="0.8"/>
+      <text x="538" y="95" fill="#4f5d75" fill-opacity="0.80" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TEMP</text>
+      <text x="576" y="112" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Temp files</text>
+      <text x="576" y="128" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">sheet_1_0.xlsx ×N</text>
+
+      <!-- 5. Archive -->
+      <rect x="668" y="80" width="120" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="668" y="80" width="120" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="676" y="86" width="28" height="12" rx="2" fill="none" stroke="#2d3142" stroke-opacity="0.40" stroke-width="0.8"/>
+      <text x="690" y="95" fill="#2d3142" fill-opacity="0.80" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MERGE</text>
+      <text x="728" y="112" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Archive</text>
+      <text x="728" y="128" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">archive.js</text>
+
+      <!-- 6. Output — focal -->
+      <rect x="820" y="80" width="120" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="820" y="80" width="120" height="80" rx="6" fill="#eb6c36" fill-opacity="0.08" stroke="#eb6c36" stroke-width="1"/>
+      <rect x="828" y="86" width="28" height="12" rx="2" fill="none" stroke="#eb6c36" stroke-opacity="0.40" stroke-width="0.8"/>
+      <text x="842" y="95" fill="#eb6c36" fill-opacity="0.80" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">FILE</text>
+      <text x="880" y="112" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Output</text>
+      <text x="880" y="128" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">.xlsx | Buffer</text>
+
+      <!-- Legend: horizontal bottom strip, never inside the diagram area. -->
+      <line x1="30" y1="220" x2="970" y2="220" stroke="#2d3142" stroke-opacity="0.10" stroke-width="0.8"/>
+      <text x="30" y="244" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">LEGEND</text>
+
+      <line x1="120" y1="241" x2="140" y2="241" stroke="#4f5d75" stroke-width="1.2"/>
+      <text x="150" y="244" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.06em">WRITES AS YOU ADD SHEETS</text>
+
+      <line x1="432" y1="241" x2="452" y2="241" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="462" y="244" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.06em">MERGED ONCE, ON SAVE</text>
+    </svg>

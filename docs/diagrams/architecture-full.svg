@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1000 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="architecture-full-title architecture-full-desc">
+        <title id="architecture-full-title">How a workbook actually gets written</title>
+        <desc id="architecture-full-desc">Rows are streamed through the sheet writer into one temporary Excel file per sheet as each sheet is added. On save, an archive step merges those temporary files into a single workbook, deriving content types and writing one compressed package to disk or returning it as a buffer.</desc>
+        <defs>
+        <style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- Phase zones: painted before arrows, so connectors sit on top of them. -->
+        <rect x="172" y="130" width="472" height="300" rx="8" fill="#2d3142" fill-opacity="0.02" stroke="#2d3142" stroke-opacity="0.10" stroke-width="0.8"/>
+        <rect x="180" y="134" width="64" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="212" y="143" fill="#2d3142" fill-opacity="0.40" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">WRITE PHASE</text>
+
+        <rect x="660" y="130" width="320" height="300" rx="8" fill="#2d3142" fill-opacity="0.02" stroke="#2d3142" stroke-opacity="0.10" stroke-width="0.8"/>
+        <rect x="668" y="134" width="80" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="708" y="143" fill="#2d3142" fill-opacity="0.40" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">MERGE PHASE</text>
+
+        <!-- Connectors: every one is horizontal or vertical, so plain lines are correct. -->
+        <line x1="164" y1="210" x2="196" y2="210" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="316" y1="210" x2="348" y2="210" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="468" y1="210" x2="500" y2="210" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="620" y1="210" x2="684" y2="210" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+        <line x1="804" y1="210" x2="836" y2="210" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="408" y1="250" x2="408" y2="350" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="744" y1="250" x2="744" y2="350" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- Annotation callouts: italic serif in the margins, dashed leaders. -->
+        <text x="40" y="112" fill="#2d3142" font-size="14" font-style="italic" font-family="'Instrument Serif', serif">the temp files are the only copy</text>
+        <path d="M 200 118 Q 420 116 560 166" fill="none" stroke="#2d3142" stroke-opacity="0.40" stroke-width="1" stroke-dasharray="4,3"/>
+        <circle cx="560" cy="166" r="2" fill="#2d3142"/>
+
+        <text x="960" y="112" fill="#4f5d75" font-size="14" font-style="italic" font-family="'Instrument Serif', serif" text-anchor="end">merge runs once, whatever the sheet count</text>
+        <path d="M 900 118 Q 820 120 744 166" fill="none" stroke="#2d3142" stroke-opacity="0.30" stroke-width="1" stroke-dasharray="4,3"/>
+        <circle cx="744" cy="166" r="2" fill="#4f5d75"/>
+
+        <!-- 1. Your rows -->
+        <rect x="44" y="170" width="120" height="80" rx="6" fill="#f5f5f5"/>
+        <rect x="44" y="170" width="120" height="80" rx="6" fill="#4f5d75" fill-opacity="0.10" stroke="#7a8399" stroke-width="1"/>
+        <rect x="52" y="176" width="28" height="12" rx="2" fill="none" stroke="#7a8399" stroke-opacity="0.40" stroke-width="0.8"/>
+        <text x="66" y="185" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DATA</text>
+        <text x="104" y="212" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Your rows</text>
+        <text x="104" y="228" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">array | Iterable</text>
+
+        <!-- 2. Workbook — focal -->
+        <rect x="196" y="170" width="120" height="80" rx="6" fill="#f5f5f5"/>
+        <rect x="196" y="170" width="120" height="80" rx="6" fill="#eb6c36" fill-opacity="0.08" stroke="#eb6c36" stroke-width="1"/>
+        <rect x="204" y="176" width="28" height="12" rx="2" fill="none" stroke="#eb6c36" stroke-opacity="0.40" stroke-width="0.8"/>
+        <text x="218" y="185" fill="#eb6c36" fill-opacity="0.80" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">API</text>
+        <text x="256" y="212" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Workbook</text>
+        <text x="256" y="228" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">StreamingWorkbook</text>
+
+        <!-- 3. Sheet writer -->
+        <rect x="348" y="170" width="120" height="80" rx="6" fill="#f5f5f5"/>
+        <rect x="348" y="170" width="120" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="356" y="176" width="28" height="12" rx="2" fill="none" stroke="#2d3142" stroke-opacity="0.40" stroke-width="0.8"/>
+        <text x="370" y="185" fill="#2d3142" fill-opacity="0.80" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">WRITE</text>
+        <text x="408" y="212" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Sheet writer</text>
+        <text x="408" y="228" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">sheet-writer.js</text>
+
+        <!-- 4. Temp files -->
+        <rect x="500" y="170" width="120" height="80" rx="6" fill="#f5f5f5"/>
+        <rect x="500" y="170" width="120" height="80" rx="6" fill="#2d3142" fill-opacity="0.05" stroke="#4f5d75" stroke-width="1"/>
+        <rect x="508" y="176" width="28" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.40" stroke-width="0.8"/>
+        <text x="522" y="185" fill="#4f5d75" fill-opacity="0.80" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TEMP</text>
+        <text x="560" y="212" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Temp files</text>
+        <text x="560" y="228" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">sheet_1_0.xlsx ×N</text>
+
+        <!-- 5. Archive -->
+        <rect x="684" y="170" width="120" height="80" rx="6" fill="#f5f5f5"/>
+        <rect x="684" y="170" width="120" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="692" y="176" width="28" height="12" rx="2" fill="none" stroke="#2d3142" stroke-opacity="0.40" stroke-width="0.8"/>
+        <text x="706" y="185" fill="#2d3142" fill-opacity="0.80" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MERGE</text>
+        <text x="744" y="212" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Archive</text>
+        <text x="744" y="228" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">archive.js</text>
+
+        <!-- 6. Output — focal -->
+        <rect x="836" y="170" width="120" height="80" rx="6" fill="#f5f5f5"/>
+        <rect x="836" y="170" width="120" height="80" rx="6" fill="#eb6c36" fill-opacity="0.08" stroke="#eb6c36" stroke-width="1"/>
+        <rect x="844" y="176" width="28" height="12" rx="2" fill="none" stroke="#eb6c36" stroke-opacity="0.40" stroke-width="0.8"/>
+        <text x="858" y="185" fill="#eb6c36" fill-opacity="0.80" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">FILE</text>
+        <text x="896" y="212" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Output</text>
+        <text x="896" y="228" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">.xlsx | Buffer</text>
+
+        <!-- Dependency: xlsx-write-stream -->
+        <rect x="348" y="350" width="120" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="348" y="350" width="120" height="64" rx="6" fill="#2d3142" fill-opacity="0.03" stroke="#2d3142" stroke-opacity="0.30" stroke-width="1"/>
+        <rect x="356" y="356" width="24" height="12" rx="2" fill="none" stroke="#2d3142" stroke-opacity="0.22" stroke-width="0.8"/>
+        <text x="368" y="365" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LIB</text>
+        <text x="408" y="384" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">xlsx-write-stream</text>
+        <text x="408" y="400" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">rows to XML</text>
+
+        <!-- Dependency: jszip -->
+        <rect x="684" y="350" width="120" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="684" y="350" width="120" height="64" rx="6" fill="#2d3142" fill-opacity="0.03" stroke="#2d3142" stroke-opacity="0.30" stroke-width="1"/>
+        <rect x="692" y="356" width="24" height="12" rx="2" fill="none" stroke="#2d3142" stroke-opacity="0.22" stroke-width="0.8"/>
+        <text x="704" y="365" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LIB</text>
+        <text x="744" y="384" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">jszip</text>
+        <text x="744" y="400" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">package assembly</text>
+
+        <!-- Legend: horizontal strip below every zone. -->
+        <line x1="30" y1="464" x2="970" y2="464" stroke="#2d3142" stroke-opacity="0.10" stroke-width="0.8"/>
+        <text x="30" y="488" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">LEGEND</text>
+
+        <rect x="120" y="480" width="14" height="10" rx="2" fill="#eb6c36" fill-opacity="0.08" stroke="#eb6c36" stroke-width="1"/>
+        <text x="144" y="489" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Public API</text>
+
+        <rect x="240" y="480" width="14" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="264" y="489" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Step</text>
+
+        <rect x="336" y="480" width="14" height="10" rx="2" fill="#2d3142" fill-opacity="0.05" stroke="#4f5d75" stroke-width="1"/>
+        <text x="360" y="489" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Intermediate file</text>
+
+        <rect x="508" y="480" width="14" height="10" rx="2" fill="#4f5d75" fill-opacity="0.10" stroke="#7a8399" stroke-width="1"/>
+        <text x="532" y="489" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Caller data</text>
+
+        <line x1="652" y1="485" x2="666" y2="485" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <text x="676" y="489" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Write phase</text>
+
+        <line x1="790" y1="485" x2="804" y2="485" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+        <text x="814" y="489" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Merge phase</text>
+      </svg>
