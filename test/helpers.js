@@ -122,8 +122,7 @@ async function validateArchive(buffer) {
                     `sheet "${entry.name}" has a row with an inverted spans range ${m[1]}:${m[2]}`
                 );
             }
-        }
-    }
+        }    }
 
     const ctXml = zip.file('[Content_Types].xml')
         ? await zip.file('[Content_Types].xml').async('string')

@@ -24,6 +24,24 @@ Rows are written through a backpressured stream and any iterable you pass is con
 npm install xlsx-stream-workbook
 ```
 
+## How it works
+
+Writing a workbook is a two-phase job, and knowing which phase you are in explains most of this library's behaviour — including why a second `save()` needs an opt-in.
+
+**Phase one, write.** Every `addSheet` call streams that sheet's rows straight into its own temporary `.xlsx` file and returns. Your data is written and forgotten; nothing accumulates in memory, and you never hold a complete workbook.
+
+**Phase two, merge.** On `save()`, those temporary files are merged into one package: one `workbook.xml`, one relationship set, content types derived from the parts actually shipped, and a single compressed archive written to disk.
+
+That split has three consequences worth knowing up front:
+
+- **The temporary files are the only copy of your data.** Once a save releases them, the workbook cannot be saved or extended again. See [Repeat saves](#repeat-saves).
+- **Adding sheets is cheap and parallel-safe.** Each sheet is independent, so `Promise.all` over several `addSheet` calls is fine — temp file identity does not depend on timing.
+- **The merge is where memory goes.** Writing is streamed and backpressured, but `jszip` assembles the finished archive in memory. See [Performance Tips](#performance-tips).
+
+[**See the two-phase write and merge pipeline →**](docs/diagrams/architecture.html)
+&nbsp;&nbsp;·&nbsp;&nbsp;
+[**Full walkthrough, annotated →**](docs/diagrams/architecture-full.html)
+
 ## Quick Start
 
 ```javascript
@@ -191,19 +209,6 @@ const buffer = await workbook.saveAsBuffer();
 // Use buffer for HTTP response, email attachment, etc.
 ```
 
-## TypeScript
-
-Types ship in `index.d.ts` and are hand-written rather than generated, so they can say why a contract is what it is. They are checked on every `npm test` against a sample consumer (`types/consumer.ts`) that exercises every public method, so a declaration that narrows what the implementation accepts fails the build instead of reaching you.
-
-```typescript
-import { StreamingWorkbook } from 'xlsx-stream-workbook';
-// or: import StreamingWorkbook from 'xlsx-stream-workbook';
-```
-
-Both import styles resolve to the class. Named and default imports are the same value, as are `const { StreamingWorkbook } = require(...)` and `const StreamingWorkbook = require(...)`.
-
-The check runs under TypeScript 7.0, a devDependency, with `strict` on. Nothing in the public types references Node's ambient globals, so you do not need `@types/node` to use this package.
-
 ### `workbook.getSheets()`
 
 Get information about added sheets. `rowCount` is the number of **data** rows, so counts are comparable across `addSheet`, `addSheetWithSections` and `addSheetFromIterator`.
@@ -228,6 +233,21 @@ Manually release the intermediate files. The workbook cannot be saved or extende
 ```javascript
 await workbook.cleanup();
 ```
+
+## TypeScript
+
+Types ship in `index.d.ts` and are hand-written rather than generated, so they can say why a contract is what it is. They are checked on every `npm test` against a sample consumer (`types/consumer.ts`) that exercises every public method, so a declaration that narrows what the implementation accepts fails the build instead of reaching you.
+
+```typescript
+import { StreamingWorkbook } from 'xlsx-stream-workbook';
+// or: import StreamingWorkbook from 'xlsx-stream-workbook';
+```
+
+Both import styles resolve to the class. Named and default imports are the same value, as are `const { StreamingWorkbook } = require(...)` and `const StreamingWorkbook = require(...)`.
+
+The check runs under TypeScript 7.0, a devDependency, with `strict` on. Nothing in the public types references Node's ambient globals, so you do not need `@types/node` to use this package.
+
+## Behaviour
 
 ### Cell values
 
@@ -254,6 +274,30 @@ await workbook.addSheet('Q2', headers, q2Rows);
 await workbook.save('q1-q2.xlsx');
 await workbook.cleanup();
 ```
+
+The full state machine, including why `sealed` throws rather than returning, is drawn in [**the workbook lifecycle →**](docs/diagrams/lifecycle.html).
+
+### Package integrity
+
+The merge is what makes the file valid. A workbook has exactly one `workbook.xml` and one relationship set no matter how many sheets, so everything sheet-specific is replaced and everything package-level is carried forward from the first intermediate file.
+
+**Required by the spec, and enforced here**
+
+- Every declared sheet resolves to a real part. ECMA-376 Part 1 §12.3.24 requires the `r:id` on a `<sheet>` element to reference a worksheet part, so a dangling entry is a genuine spec violation. The merge refuses to write one.
+- The Styles relationship is placed past every sheet id, so it can never collide with a worksheet's `r:id`. §12.3.20 permits at most one Styles part, reached by an *implicit* relationship.
+
+**Stricter than the spec, on purpose**
+
+- Every non-`.rels` part gets an explicit `Override` carrying its specific media type. OPC (Part 2 §7.2.3.2.1) would accept a matching `Default Extension="xml"` in its place. This library never takes that shortcut, because a part left on the generic fallback is technically conformant while being untyped to a SpreadsheetML consumer — an unknown part is a hard error rather than a guess.
+
+**Verified behaviour, unverified provenance** — the confidence differs, and it is worth knowing which is which
+
+- `NaN` and `Infinity` are rejected. The XML schema permits `<v>NaN</v>` on its own, since `ST_Xstring` is a string — but the cell is declared `t="n"`, which means "cell containing a number" (§18.18.11), and a consumer is entitled to fail the parse. The reasoning is sound; the Excel repair prompt itself is not documented anywhere.
+- Spacer rows between sections are one empty cell, not an empty row. ECMA-376 places no constraint on `spans` at all, so `1:0` is schema-valid. It has been *observed* to trigger Excel's repair prompt, but no primary source documents it.
+
+**No shared strings, deliberately.** `xlsx-write-stream` writes inline strings, so the package never contains `xl/sharedStrings.xml`. That is precisely what makes merging safe: a shared string table holds one entry per unique string across *all* worksheets, and each cell holds a positional index into it. Concatenating two per-sheet tables would leave every index in the second sheet pointing at the wrong string unless each were shifted. Inline strings avoid the problem rather than solving it.
+
+Part-by-part detail, with the clause citations and a spec-required-versus-verified table: [`docs/research/ooxml-package-structure.md`](docs/research/ooxml-package-structure.md).
 
 ## Examples
 
@@ -362,4 +406,3 @@ MIT © Khamidullo Khudoyberdiev
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request.
-# xlsx-stream-workbook
